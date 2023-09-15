@@ -7,3 +7,28 @@ export function singleton<Value>(name: string, value: () => Value): Value {
   yolo.__singletons[name] ??= value()
   return yolo.__singletons[name]
 }
+
+// I do like that the error is logged and returned first in an array,
+// so its easy to check for errors from the return value.
+const ERR = Symbol("ERR")
+type Err = {
+  [ERR]: true
+  error: Error
+}
+
+export function isErr(x: unknown): x is Err {
+  return typeof x === "object" && x != null && ERR in x
+}
+
+export async function tryFail<T>(
+  f: (() => Promise<T>) | (() => T)
+): Promise<[Err, null] | [null, Awaited<T>]> {
+  try {
+    return [null, await f()]
+  } catch (e) {
+    // ts-expect-error
+    const error = e instanceof Error ? e : new Error(e)
+    console.error(error)
+    return [{ [ERR]: true, error }, null]
+  }
+}

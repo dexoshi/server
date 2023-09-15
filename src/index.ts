@@ -1,12 +1,16 @@
+import { startCronJobs } from './cron-jobs'
 import * as env from './env'
+import { getProfile } from './profile'
 import { getNotifications } from './user-notifications'
 
 env.init()
 
-// await login()
+if (process.env.NODE_ENV !== 'production') {
+  startCronJobs()
+}
 
 const server = Bun.serve({
-  port: 3000,
+  port: process.env.PORT || 3000,
   development: true,
   async fetch(req) {
     const url = new URL(req.url)
@@ -22,7 +26,7 @@ const server = Bun.serve({
     <title>Active Cron Jobs</title>
 </head>
 <body>
-    <h1>Active Cron Jobs</h1>
+    <h1>Active Cron Job</h1>
     <ul>
     ${notifications.map((n) => `<li>${n.notificationId}</li>`).join('')}
     </ul>
@@ -31,9 +35,13 @@ const server = Bun.serve({
         { headers: { 'content-type': 'text/html' } }
       )
     }
+    if (url.pathname === '/profile') {
+      const profile = await getProfile()
+      return new Response(JSON.stringify(profile))
+    }
     if (url.pathname === '/blog') return new Response('Blog!')
     return new Response(`Bun!`)
   },
 })
 
-console.log(`Listening on http://localhost:${server.port}...`)
+console.log(`Listening at http://localhost:${server.port}...`)

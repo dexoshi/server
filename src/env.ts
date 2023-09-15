@@ -3,6 +3,8 @@ import { z } from 'zod'
 const envVariables = z.object({
   PRIVATE_KEY: z.string(),
   PROFILE_ID: z.string(),
+  INFURA_API_KEY: z.string(),
+  INFURA_API_KEY_SECRET: z.string(),
 })
 
 export function init() {
