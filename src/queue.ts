@@ -21,12 +21,15 @@ export function dequeue(queue: string) {
 }
 
 export const addToMintQueue = (item: { publication: NewMentionNotificationFragment }) => {
+  const queue = (QUEUES['card'] ?? []) as { publication: NewMentionNotificationFragment }[]
+  if (queue.some((i) => i.publication.notificationId === item.publication.notificationId)) return
   console.log('Mint Card added to Queue:', item.publication.notificationId)
   enqueue('card', item)
 }
 
 const getMintQueue = () => {
-  return dequeue('card') as { publication: NewMentionNotificationFragment } | undefined
+  const queue = (QUEUES['card'] ?? []) as { publication: NewMentionNotificationFragment }[]
+  return queue[0]
 }
 
 export const processMintQueue = async () => {
@@ -43,13 +46,16 @@ export const processMintQueue = async () => {
     })
     const cardMetaData = await getCardMetadata(token.toString())
 
-    // TODO: add logic to drop them a card
     await createComment({
       publicationId: mentionPublication.id,
       cardImage: cardMetaData.image,
       cardName: cardMetaData.name,
     })
+
+    // Remove the item from the queue after we know it was successful
+    dequeue('card')
   }
+
   // Check the queue again after a delay.
   setTimeout(processMintQueue, 5000)
 }
