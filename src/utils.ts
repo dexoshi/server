@@ -10,25 +10,23 @@ export function singleton<Value>(name: string, value: () => Value): Value {
 
 // I do like that the error is logged and returned first in an array,
 // so its easy to check for errors from the return value.
-const ERR = Symbol("ERR")
+const ERR = Symbol('ERR')
 type Err = {
   [ERR]: true
   error: Error
 }
 
 export function isErr(x: unknown): x is Err {
-  return typeof x === "object" && x != null && ERR in x
+  return typeof x === 'object' && x != null && ERR in x
 }
 
-export async function tryFail<T>(
-  f: (() => Promise<T>) | (() => T)
-): Promise<[Err, null] | [null, Awaited<T>]> {
+export async function tryFail<T>(f: (() => Promise<T>) | (() => T)) {
   try {
-    return [null, await f()]
+    return [null, await f()] as const
   } catch (e) {
-    // ts-expect-error
+    // @ts-expect-error
     const error = e instanceof Error ? e : new Error(e)
     console.error(error)
-    return [{ [ERR]: true, error }, null]
+    return [{ [ERR]: true, error }, null] as const
   }
 }
