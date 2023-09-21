@@ -20,7 +20,7 @@ export const startCronJobs = () => (app: Elysia) => {
   app.use(
     cron({
       name: 'check-notifications',
-      pattern: '*/15 * * * * *',
+      pattern: '*/10 * * * * *',
       run: async () => {
         console.log('🕐 Running cron job...')
         const notifications = await getNotifications()
