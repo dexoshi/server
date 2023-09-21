@@ -19,7 +19,6 @@ const dexoshiContract = getContract({
 export async function mintCard({
   to,
   tokenId = BigInt(0),
-  amount = BigInt(1),
 }: {
   to: Address
   tokenId?: bigint

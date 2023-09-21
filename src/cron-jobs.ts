@@ -20,7 +20,7 @@ export const startCronJobs = () => (app: Elysia) => {
   app.use(
     cron({
       name: 'check-notifications',
-      pattern: '*/10 * * * * *',
+      pattern: '*/15 * * * * *',
       run: async () => {
         console.log('🕐 Running cron job...')
         const notifications = await getNotifications()
@@ -28,7 +28,6 @@ export const startCronJobs = () => (app: Elysia) => {
           await Promise.all(
             notifications.map(async (n) => {
               if (n.__typename === 'NewMentionNotification') {
-                console.log('Notification ID:', n.notificationId)
                 const content = n.mentionPublication.metadata.content
                 const [name, command] = content?.split(' ') ?? []
                 if (name?.includes('dexoshi') && command === '#drop') {
