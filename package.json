@@ -7,6 +7,7 @@
     "build": "bun build --target=bun src/index.ts --outfile=index.js",
     "start": "bun run index.js",
     "migrate": "bun ./migrate.ts",
+    "deploy": "fly deploy --remote-only",
     "generate": "drizzle-kit generate:sqlite --schema ./src/drizzle/schema.ts --out ./src/drizzle",
     "studio": "drizzle-kit studio"
   },
