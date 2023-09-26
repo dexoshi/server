@@ -6,39 +6,36 @@ import { login } from './login'
 
 const prefix = 'create comment'
 
-export const createComment = async ({
+async function createComment({
   publicationId,
-  cardName,
-  cardImage,
+  content,
+  image,
+  media,
+  mainContentFocus = PublicationMainFocus.Image,
 }: {
+  content: string
   publicationId: string
-  cardName: string
-  cardImage: string
-}) => {
+  image?: string
+  media?: { item: string; altTag: string; cover: string; type: string }[]
+  mainContentFocus?: PublicationMainFocus
+}) {
   await login()
   console.log(`${prefix}: uploading to ipfs`)
   const contentURI = await uploadIpfs<PublicationMetadataV2Input>({
     version: '2.0.0',
-    mainContentFocus: PublicationMainFocus.Image,
+    mainContentFocus: mainContentFocus,
     metadata_id: uuidv4(),
     description: 'Description',
     locale: 'en-US',
-    content: `Congratulations! You've just minted ${cardName}!`,
+    content,
     external_url: null,
-    image: cardImage,
+    image,
     imageMimeType: null,
     name: 'Name',
     attributes: [],
     tags: ['dexoshi', 'gaming', 'nft', 'card', 'trading card'],
     appId: 'dexoshi',
-    media: [
-      {
-        item: cardImage,
-        altTag: cardName,
-        cover: cardImage,
-        type: 'image/png',
-      },
-    ],
+    media: media,
   })
   console.log(`${prefix}: contentURI`, contentURI)
 
@@ -55,6 +52,73 @@ export const createComment = async ({
     console.error('create comment via dispatcher: failed', result.reason)
     throw new Error('create comment via dispatcher: failed')
   }
+
+  return result
+}
+export const createMintComment = async ({
+  publicationId,
+  cardName,
+  cardImage,
+}: {
+  publicationId: string
+  cardName: string
+  cardImage: string
+}) => {
+  const result = await createComment({
+    publicationId,
+    content: `Congratulations! You've just minted ${cardName}!`,
+    image: cardImage,
+    media: [
+      {
+        item: cardImage,
+        altTag: cardName,
+        cover: cardImage,
+        type: 'image/png',
+      },
+    ],
+  })
+
+  return result
+}
+
+export const createMergeComment = async ({
+  publicationId,
+  cardName,
+  cardImage,
+}: {
+  publicationId: string
+  cardName: string
+  cardImage: string
+}) => {
+  const result = await createComment({
+    publicationId,
+    content: `Congratulations! You've successfully merged your cards to create ${cardName}!`,
+    image: cardImage,
+    media: [
+      {
+        item: cardImage,
+        altTag: cardName,
+        cover: cardImage,
+        type: 'image/png',
+      },
+    ],
+  })
+
+  return result
+}
+
+export const createInfoComment = async ({
+  publicationId,
+  content,
+}: {
+  publicationId: string
+  content: string
+}) => {
+  const result = await createComment({
+    publicationId,
+    content,
+    mainContentFocus: PublicationMainFocus.TextOnly,
+  })
 
   return result
 }

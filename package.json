@@ -5,28 +5,36 @@
   "scripts": {
     "dev": "bun --hot run src/index.ts",
     "build": "bun build --target=bun src/index.ts --outfile=index.js",
-    "start": "bun run index.js"
+    "start": "bun run index.js",
+    "migrate": "bun ./migrate.ts",
+    "generate": "drizzle-kit generate:sqlite --schema ./src/drizzle/schema.ts --out ./src/drizzle",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@elysiajs/cron": "^0.6.0",
+    "@lens-protocol/client": "^1.3.0",
+    "@thirdweb-dev/storage": "^1.2.10",
+    "alchemy-sdk": "^2.10.1",
+    "buffer": "^6.0.3",
+    "drizzle-kit": "^0.19.13",
+    "drizzle-orm": "^0.28.6",
+    "elysia": "^0.6.23",
+    "ethers": "^5",
+    "ipfs-infura": "^1.1.9",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.0",
+    "viem": "^1.11.0",
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.5.1",
+    "@types/lodash": "^4.14.199",
     "@types/node-cron": "^3.0.8",
     "@types/uuid": "^9.0.3",
     "bun-types": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "@elysiajs/cron": "^0.6.0",
-    "@lens-protocol/client": "^1.3.0",
-    "@thirdweb-dev/storage": "^1.2.10",
-    "buffer": "^6.0.3",
-    "elysia": "^0.6.23",
-    "ethers": "^5",
-    "ipfs-infura": "^1.1.9",
-    "uuid": "^9.0.0",
-    "viem": "^1.11.0",
-    "zod": "^3.22.2"
   },
   "prettier": {
     "semi": false,

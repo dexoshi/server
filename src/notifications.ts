@@ -9,7 +9,7 @@ export async function getNotifications() {
     profileId: process.env.PROFILE_ID,
     limit: 20,
     customFilters: [CustomFiltersTypes.Gardeners],
-    notificationTypes: [NotificationTypes.MentionPost],
+    notificationTypes: [NotificationTypes.MentionPost, NotificationTypes.MentionComment],
     highSignalFilter: false,
   })
 

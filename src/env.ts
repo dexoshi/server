@@ -5,6 +5,7 @@ const envVariables = z.object({
   PROFILE_ID: z.string(),
   INFURA_API_KEY: z.string(),
   INFURA_API_KEY_SECRET: z.string(),
+  ALCHEMY_API_KEY: z.string(),
 })
 
 export function init() {

@@ -1,4 +1,4 @@
-import { lensClient } from "./lens-client"
+import { lensClient } from './lens-client'
 
 export const getProfile = async () => {
   return lensClient.profile.fetch({
