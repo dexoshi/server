@@ -7,6 +7,7 @@ export default {
     url: process.env.DATABASE_URL!,
     authToken: process.env.DATABASE_AUTH_TOKEN,
   },
+  out: './src/db',
   verbose: true,
   strict: true,
 } satisfies Config
