@@ -6,6 +6,8 @@ const envVariables = z.object({
   INFURA_API_KEY: z.string(),
   INFURA_API_KEY_SECRET: z.string(),
   ALCHEMY_API_KEY: z.string(),
+  DATABASE_URL: z.string(),
+  DATABASE_AUTH_TOKEN: z.string(),
 })
 
 export function init() {

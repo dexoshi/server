@@ -4,6 +4,8 @@ import Elysia from 'elysia'
 import { sumBy } from 'lodash'
 import { getOwnedCards } from './alchemyt'
 import { getComments } from './comments'
+import { db } from './db/db'
+import { publications } from './db/schema'
 import { getNotifications } from './notifications'
 import { addToInfoQueue, addToMergeQueue, addToMintQueue } from './queue'
 
@@ -35,10 +37,31 @@ export const startCronJobs = () => (app: Elysia) => {
       run: async () => {
         console.log('🕐 Checking Notifications...')
         const notifications = await getNotifications()
+        const recordedPublications = await db.query.publications.findMany({
+          where: (p, { inArray }) =>
+            inArray(
+              p.publicationId,
+              notifications
+                .map((n) => {
+                  if (n.__typename === 'NewMentionNotification') {
+                    return n.mentionPublication.id
+                  }
+                  return ''
+                })
+                .filter(Boolean)
+            ),
+        })
+
         await Promise.all([
           await Promise.all(
-            notifications.slice(0, 1).map(async (n) => {
+            notifications.map(async (n) => {
               if (n.__typename === 'NewMentionNotification') {
+                const hasCommented = recordedPublications.some(
+                  (p) => p.publicationId === n.mentionPublication.id
+                )
+
+                if (hasCommented) return
+
                 const content = n.mentionPublication.metadata.content
                 const [_, command] = content?.split(' ') ?? []
                 if (command === '#airdrop') {
@@ -47,9 +70,16 @@ export const startCronJobs = () => (app: Elysia) => {
                     (c) => c.profile.id === process.env.PROFILE_ID
                   )
 
-                  if (hasCommented) return
+                  if (hasCommented) {
+                    await db.insert(publications).values({
+                      publicationId: n.mentionPublication.id,
+                      commentedAt: new Date(),
+                    })
+                    return
+                  }
 
-                  addToMintQueue({
+                  await addToMintQueue({
+                    type: 'mint',
                     publicationId: n.mentionPublication.id,
                     profile: n.mentionPublication.profile,
                   })
@@ -61,8 +91,16 @@ export const startCronJobs = () => (app: Elysia) => {
                     (c) => c.profile.id === process.env.PROFILE_ID
                   )
 
-                  if (hasCommented) return
-                  addToMergeQueue({
+                  if (hasCommented) {
+                    await db.insert(publications).values({
+                      publicationId: n.mentionPublication.id,
+                      commentedAt: new Date(),
+                    })
+                    return
+                  }
+
+                  await addToMergeQueue({
+                    type: 'merge',
                     publicationId: n.mentionPublication.id,
                     profile: n.mentionPublication.profile,
                     tokenOneId: tokenOneId,
@@ -74,14 +112,21 @@ export const startCronJobs = () => (app: Elysia) => {
                     (c) => c.profile.id === process.env.PROFILE_ID
                   )
 
-                  if (hasCommented) return
+                  if (hasCommented) {
+                    await db.insert(publications).values({
+                      publicationId: n.mentionPublication.id,
+                      commentedAt: new Date(),
+                    })
+                    return
+                  }
 
                   // Get tokens Ids that the user owns
                   const nfts = await getOwnedCards({ owner: n.mentionPublication.profile.ownedBy })
 
                   const content = createCardInfoSummary(nfts.ownedNfts)
 
-                  addToInfoQueue({
+                  await addToInfoQueue({
+                    type: 'info',
                     content,
                     profile: n.mentionPublication.profile,
                     publicationId: n.mentionPublication.id,

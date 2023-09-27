@@ -1,5 +1,7 @@
 import { PublicationMainFocus, PublicationMetadataV2Input } from '@lens-protocol/client'
 import { v4 as uuidv4 } from 'uuid'
+import { db } from './db/db'
+import { publications } from './db/schema'
 import { uploadIpfs } from './ipfs'
 import { lensClient } from './lens-client'
 import { login } from './login'
@@ -52,6 +54,11 @@ async function createComment({
     console.error('create comment via dispatcher: failed', result.reason)
     throw new Error('create comment via dispatcher: failed')
   }
+
+  await db.insert(publications).values({
+    publicationId,
+    commentedAt: new Date(),
+  })
 
   return result
 }
