@@ -15,8 +15,10 @@ import { getCardMetadata } from './ipfs'
 import { tryFail } from './utils'
 
 type QueueName = NonNullable<SelectQueue['name']>
-async function getQueue(name: QueueName) {
-  const queue = await db.query.queues.findMany({ where: (q, { eq }) => eq(q.name, name) })
+async function getQueue(name?: QueueName) {
+  const queue = await db.query.queues.findMany({
+    ...(name && { where: (q, { eq }) => eq(q.name, name) }),
+  })
   // @ts-expect-error
   return queue.map((q) => ({ ...q, value: JSON.parse(q.value) as QueueValue }))
 }
@@ -42,7 +44,7 @@ export const addToMintQueue = async (item: MintQueueItem) => {
     return
   console.log('Mint Card added to Queue For User:', item.profile.name || item.profile.handle)
   console.log('Publication ID:', item.publicationId)
-  enqueue('card', item)
+  await enqueue('card', item)
 }
 
 export const addToMergeQueue = async (item: MergeQueueItem) => {
@@ -56,7 +58,7 @@ export const addToMergeQueue = async (item: MergeQueueItem) => {
     return
   console.log('Merge Card added to Queue For User:', item.profile.name || item.profile.handle)
   console.log('Publication ID:', item.publicationId)
-  enqueue('merge', item)
+  await enqueue('merge', item)
 }
 
 export const addToInfoQueue = async (item: InfoQueueItem) => {
@@ -65,18 +67,14 @@ export const addToInfoQueue = async (item: InfoQueueItem) => {
   if (queue.some((i) => item.profile.id === i.value.profile.id)) return
   console.log('Request Info added to Queue For User:', item.profile.name || item.profile.handle)
   console.log('Publication ID:', item.publicationId)
-  enqueue('info', item)
-}
-
-async function getInfoQueue() {
-  const queue = await getQueue('info')
-  return queue[0]
+  await enqueue('info', item)
 }
 
 export const processQueues = async () => {
   const item = await db.query.queues.findFirst()
   if (item) {
-    const value = item.value
+    // @ts-expect-error
+    const value = JSON.parse(item.value) as QueueValue
 
     if (value.type === 'mint') {
       console.log('Running Mint Queue For Item...')
@@ -94,7 +92,7 @@ export const processQueues = async () => {
       })
 
       // Remove the item from the queue after we know it was successful
-      dequeue(item.id)
+      await dequeue(item.id)
     }
 
     if (value.type === 'merge') {
@@ -121,7 +119,7 @@ export const processQueues = async () => {
         cardImage: cardMetaData.image,
         cardName: cardMetaData.name,
       })
-      dequeue(item.id)
+      await dequeue(item.id)
     }
 
     if (value.type === 'info') {
@@ -130,7 +128,7 @@ export const processQueues = async () => {
         publicationId: value.publicationId,
         content: value.content,
       })
-      dequeue(item.id)
+      await dequeue(item.id)
     }
   }
 
