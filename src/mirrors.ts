@@ -7,9 +7,10 @@ export const getWhoMirroredPublication = async ({
   publicationId: string
   cursor?: string
 }) => {
-  return lensClient.profile.fetchAll({
+  const result = await lensClient.profile.fetchAll({
     whoMirroredPublicationId: publicationId,
     limit: 50,
     cursor,
   })
+  return result.items
 }

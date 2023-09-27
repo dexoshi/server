@@ -63,7 +63,8 @@ export const startCronJobs = () => (app: Elysia) => {
                 if (hasCommented) return
 
                 const content = n.mentionPublication.metadata.content
-                const [_, command] = content?.split(' ') ?? []
+                const hashtags = content?.match(/(?<=#)\w+/g)
+                const command = hashtags?.[0]
                 if (command === '#airdrop') {
                   const checkComments = await getComments(n.mentionPublication.id)
                   const hasCommented = checkComments.items.some(
@@ -131,6 +132,13 @@ export const startCronJobs = () => (app: Elysia) => {
                     profile: n.mentionPublication.profile,
                     publicationId: n.mentionPublication.id,
                   })
+                } else if (command) {
+                  await addToInfoQueue({
+                    type: 'info',
+                    content: `${command} is not a valid command.\n\nPlease choose one of the following: #airdrop, #merge, #info.`,
+                    profile: n.mentionPublication.profile,
+                    publicationId: n.mentionPublication.id,
+                  })
                 }
               }
             })
@@ -139,52 +147,6 @@ export const startCronJobs = () => (app: Elysia) => {
       },
     })
   )
-
-  // app.use(
-  //   cron({
-  //     name: 'check-mirrors',
-  //     pattern: '*/15 * * * * *',
-  //     run: async () => {
-  //       console.log('🕐 Checking Mirrors...')
-
-  //       let cursor = await db
-  //         .select({
-  //           value: cache.value,
-  //         })
-  //         .from(cache)
-  //         .where(eq(cache.key, 'mirrors'))
-  //         .limit(1)
-
-  //       console.log('🚀 ~ file: cron-jobs.ts:66 ~ run: ~ cursor:', cursor)
-  //       const parsedCursor = cursor[0]?.value
-  //         ? (JSON.parse(cursor[0].value) as { publicationId: string; lasCursor: string })
-  //         : null
-  //       console.log('🚀 ~ file: cron-jobs.ts:68 ~ run: ~ parsedCursor:', parsedCursor)
-
-  //       const mirrors = await getWhoMirroredPublication({
-  //         publicationId: '0x91ac-0x01-DA-6709cc0d',
-  //         cursor: parsedCursor?.lasCursor,
-  //       })
-  //       console.log('🚀 ~ file: cron-jobs.ts:71 ~ run: ~ mirrors:', mirrors.items.length)
-
-  //       mirrors.items.forEach((m) => {
-  //         // addToMintQueue({ profile: m, publicationId: '0x91ac-0x01-DA-6709cc0d' })
-  //       })
-
-  //       try {
-  //         await db.insert(cache).values({
-  //           key: 'mirrors',
-  //           value: JSON.stringify({
-  //             publicationId: '0x91ac-0x01-DA-6709cc0d',
-  //             lastCursor: mirrors.pageInfo.next,
-  //           }),
-  //         })
-  //       } catch (e) {
-  //         console.error(e)
-  //       }
-  //     },
-  //   })
-  // )
 
   globalThis.hasCronJobsSetup = true
   return app
