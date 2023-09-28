@@ -2,19 +2,12 @@ import cron from '@elysiajs/cron'
 import { OwnedNft } from 'alchemy-sdk'
 import Elysia from 'elysia'
 import { sumBy } from 'lodash'
-import { getOwnedCards } from './alchemyt'
-import { getComments } from './comments'
-import { db } from './db/db'
-import { publications } from './db/schema'
-import { getNotifications } from './notifications'
-import { addToInfoQueue, addToMergeQueue, addToMintQueue } from './queue'
-
-declare global {
-  var hasCronJobsSetup: boolean
-}
-
-// Default to true when in development
-globalThis.hasCronJobsSetup ??= false
+import { getOwnedCards } from '../alchemyt'
+import { getComments } from '../comments'
+import { db } from '../db/db'
+import { publications } from '../db/schema'
+import { getNotifications } from '../notifications'
+import { addToInfoQueue, addToMergeQueue, addToMintQueue } from '../queue'
 
 export function createCardInfoSummary(nfts: OwnedNft[]) {
   return `You own ${sumBy(nfts, (n) => n.balance)} cards.
@@ -24,12 +17,7 @@ ${nfts.map((n) => `${n.tokenId} (${n.balance}x)`).join('\n')}
 `
 }
 
-export const startCronJobs = () => (app: Elysia) => {
-  // if (process.env.NODE_ENV !== 'production') return app
-  if (globalThis.hasCronJobsSetup) return app
-
-  console.log('🕐 Starting cron jobs...')
-
+export const init = (app: Elysia) => {
   app.use(
     cron({
       name: 'check-notifications',
@@ -147,7 +135,4 @@ export const startCronJobs = () => (app: Elysia) => {
       },
     })
   )
-
-  globalThis.hasCronJobsSetup = true
-  return app
 }

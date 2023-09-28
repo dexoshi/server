@@ -55,10 +55,16 @@ async function createComment({
     throw new Error('create comment via dispatcher: failed')
   }
 
-  await db.insert(publications).values({
-    publicationId,
-    commentedAt: new Date(),
-  })
+  await db
+    .insert(publications)
+    .values({
+      publicationId,
+      commentedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: publications.publicationId,
+      set: { commentedAt: new Date() },
+    })
 
   return result
 }
@@ -66,14 +72,16 @@ export const createMintComment = async ({
   publicationId,
   cardName,
   cardImage,
+  profileHandle,
 }: {
   publicationId: string
   cardName: string
   cardImage: string
+  profileHandle: string
 }) => {
   const result = await createComment({
     publicationId,
-    content: `Congratulations! You've just minted ${cardName}!`,
+    content: `Congratulations @${profileHandle}! You've just minted ${cardName}!`,
     image: cardImage,
     media: [
       {

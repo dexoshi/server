@@ -12,5 +12,5 @@ export const getWhoMirroredPublication = async ({
     limit: 50,
     cursor,
   })
-  return result.items
+  return result
 }

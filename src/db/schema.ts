@@ -8,8 +8,9 @@ export const cache = sqliteTable(
     id: text('id')
       .primaryKey()
       .$defaultFn(() => uuid()),
-    key: text('key'),
-    value: text('value'),
+    createdAt: integer('date', { mode: 'timestamp_ms' }).$default(() => new Date()),
+    key: text('key').unique().notNull(),
+    value: text('value').notNull(),
   },
   (t) => ({
     keyIdx: index('key_idx').on(t.key),
@@ -20,9 +21,25 @@ export const publications = sqliteTable('publications', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => uuid()),
+  createdAt: integer('date', { mode: 'timestamp_ms' }).$default(() => new Date()),
   publicationId: text('publicationId').unique().notNull(),
   commentedAt: integer('date', { mode: 'timestamp_ms' }),
 })
+
+export const mintedCards = sqliteTable(
+  'minted_cards',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => uuid()),
+    createdAt: integer('date', { mode: 'timestamp_ms' }).$default(() => new Date()),
+    profileId: text('profileId').notNull(),
+    publicationId: text('publicationId').notNull(),
+  },
+  (t) => ({
+    uniqueIdx: index('unique_idx').on(t.profileId, t.publicationId),
+  })
+)
 
 export type MintQueueItem = {
   type: 'mint'
