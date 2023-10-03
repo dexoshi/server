@@ -43,3 +43,7 @@ export function getErrorMessage(error: unknown) {
   console.error('Unable to get error message for error', error)
   return 'Unknown Error'
 }
+
+export function getHashTags(content: string | undefined | null) {
+  return content?.match(/(?<=#)\w+/g) ?? []
+}

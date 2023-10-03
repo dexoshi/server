@@ -53,13 +53,6 @@ export const dexoshiAbi = [
     type: 'event',
   },
   {
-    inputs: [],
-    name: 'MAX_TOKEN_ID',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       { internalType: 'address', name: 'account', type: 'address' },
       { internalType: 'uint256', name: 'id', type: 'uint256' },
@@ -80,6 +73,20 @@ export const dexoshiAbi = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'contractURI',
+    outputs: [{ internalType: 'string', name: '', type: 'string' }],
+    stateMutability: 'pure',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'address', name: '', type: 'address' }],
+    name: 'hasCustody',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       { internalType: 'address', name: 'account', type: 'address' },
       { internalType: 'address', name: 'operator', type: 'address' },
@@ -91,8 +98,8 @@ export const dexoshiAbi = [
   },
   {
     inputs: [
-      { internalType: 'uint256', name: '_tokenA', type: 'uint256' },
-      { internalType: 'uint256', name: '_tokenB', type: 'uint256' },
+      { internalType: 'uint256', name: 'tokenA', type: 'uint256' },
+      { internalType: 'uint256', name: 'tokenB', type: 'uint256' },
     ],
     name: 'merge',
     outputs: [{ internalType: 'uint256', name: 'tokenC', type: 'uint256' }],
@@ -108,9 +115,20 @@ export const dexoshiAbi = [
   },
   {
     inputs: [
-      { internalType: 'address', name: '_to', type: 'address' },
-      { internalType: 'uint256', name: '_tokenA', type: 'uint256' },
-      { internalType: 'uint256', name: '_tokenB', type: 'uint256' },
+      { internalType: 'address', name: 'to', type: 'address' },
+      { internalType: 'uint256', name: 'token', type: 'uint256' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+    ],
+    name: 'ownerBurn',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: 'to', type: 'address' },
+      { internalType: 'uint256', name: 'tokenA', type: 'uint256' },
+      { internalType: 'uint256', name: 'tokenB', type: 'uint256' },
     ],
     name: 'ownerMerge',
     outputs: [],
@@ -119,8 +137,9 @@ export const dexoshiAbi = [
   },
   {
     inputs: [
-      { internalType: 'address', name: '_to', type: 'address' },
-      { internalType: 'uint256', name: '_token', type: 'uint256' },
+      { internalType: 'address', name: 'to', type: 'address' },
+      { internalType: 'uint256', name: 'token', type: 'uint256' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
     ],
     name: 'ownerMint',
     outputs: [],
@@ -129,8 +148,8 @@ export const dexoshiAbi = [
   },
   {
     inputs: [
-      { internalType: 'uint256', name: '_tokenA', type: 'uint256' },
-      { internalType: 'uint256', name: '_tokenB', type: 'uint256' },
+      { internalType: 'uint256', name: 'tokenA', type: 'uint256' },
+      { internalType: 'uint256', name: 'tokenB', type: 'uint256' },
     ],
     name: 'playerMerge',
     outputs: [],
@@ -181,6 +200,13 @@ export const dexoshiAbi = [
     type: 'function',
   },
   {
+    inputs: [{ internalType: 'bool', name: '_bool', type: 'bool' }],
+    name: 'setCustody',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     inputs: [{ internalType: 'bytes4', name: 'interfaceId', type: 'bytes4' }],
     name: 'supportsInterface',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
@@ -201,4 +227,4 @@ export const dexoshiAbi = [
     stateMutability: 'view',
     type: 'function',
   },
-] as const
+]

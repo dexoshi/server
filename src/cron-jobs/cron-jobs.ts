@@ -1,4 +1,5 @@
 import Elysia from 'elysia'
+import { init as initCollect } from './collect-cron'
 import { init as initMirror } from './mirror-cron'
 import { init as initNotifications } from './notifications-cron'
 
@@ -16,6 +17,7 @@ export const startCronJobs = () => (app: Elysia) => {
   console.log('🕐 Starting cron jobs...')
   initNotifications(app)
   initMirror(app)
+  initCollect(app)
 
   globalThis.hasCronJobsSetup = true
   return app

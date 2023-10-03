@@ -2,7 +2,7 @@ import { TypedDataDomain } from '@ethersproject/abstract-signer'
 import { ethers, utils, Wallet } from 'ethers'
 
 export const ethersProvider = new ethers.providers.JsonRpcProvider(
-  'https://mumbai.rpc.thirdweb.com'
+  'https://rpc-mumbai.maticvigil.com'
 )
 
 export const getSigner = () => {

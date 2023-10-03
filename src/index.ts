@@ -1,5 +1,6 @@
 import { Elysia, t } from 'elysia'
 import { getOwnedCards } from './alchemyt'
+import { getAllWalletsWhoCollected } from './collects'
 import { startCronJobs } from './cron-jobs/cron-jobs'
 import { createCardInfoSummary } from './cron-jobs/notifications-cron'
 import * as env from './env'
@@ -28,6 +29,17 @@ const app = new Elysia()
   .use(startCronJobs())
   .group('/notifications', (app) => app.use(notifications))
   .group('/publications', (app) => app.use(publications))
+  .get(
+    '/collects',
+    ({ query }) => {
+      return getAllWalletsWhoCollected({ publicationId: query.publication_id })
+    },
+    {
+      query: t.Object({
+        publication_id: t.String(),
+      }),
+    }
+  )
   .listen(process.env.PORT || 3000)
 
 processQueues()

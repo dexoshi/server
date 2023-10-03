@@ -8,6 +8,7 @@ import { db } from '../db/db'
 import { publications } from '../db/schema'
 import { getNotifications } from '../notifications'
 import { addToInfoQueue, addToMergeQueue, addToMintQueue } from '../queue'
+import { getHashTags } from '../utils'
 
 export function createCardInfoSummary(nfts: OwnedNft[]) {
   return `You own ${sumBy(nfts, (n) => n.balance)} cards.
@@ -51,9 +52,9 @@ export const init = (app: Elysia) => {
                 if (hasCommented) return
 
                 const content = n.mentionPublication.metadata.content
-                const hashtags = content?.match(/(?<=#)\w+/g)
-                const command = hashtags?.[0]
-                if (command === '#airdrop') {
+                const hashtags = getHashTags(content)
+                const command = hashtags[0]
+                if (command === 'airdrop') {
                   const checkComments = await getComments(n.mentionPublication.id)
                   const hasCommented = checkComments.items.some(
                     (c) => c.profile.id === process.env.PROFILE_ID
@@ -72,7 +73,7 @@ export const init = (app: Elysia) => {
                     publicationId: n.mentionPublication.id,
                     profile: n.mentionPublication.profile,
                   })
-                } else if (command === '#merge') {
+                } else if (command === 'merge') {
                   const [_, __, mergeTokens] = content?.split(' ') ?? []
                   const [tokenOneId, tokenTwoId] = mergeTokens?.split('*') ?? []
                   const checkComments = await getComments(n.mentionPublication.id)
@@ -95,7 +96,7 @@ export const init = (app: Elysia) => {
                     tokenOneId: tokenOneId,
                     tokenTwoId: tokenTwoId,
                   })
-                } else if (command === '#info') {
+                } else if (command === 'info') {
                   const checkComments = await getComments(n.mentionPublication.id)
                   const hasCommented = checkComments.items.some(
                     (c) => c.profile.id === process.env.PROFILE_ID

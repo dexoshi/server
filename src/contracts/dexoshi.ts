@@ -9,7 +9,7 @@ import { getErrorMessage } from '../utils'
 const walletClient = createWalletClient({
   chain: polygonMumbai,
   account: privateKeyToAccount(`0x${process.env.PRIVATE_KEY}`),
-  transport: http(),
+  transport: http('https://rpc-mumbai.maticvigil.com'),
 })
 
 const dexoshiContract = getContract({
@@ -26,8 +26,7 @@ export async function mintCard({
   tokenId?: bigint
   amount?: bigint
 }) {
-  const hash = await dexoshiContract.write.ownerMint([to, tokenId])
-  console.log(hash)
+  const hash = await dexoshiContract.write.ownerMint([to, tokenId, 1])
   return hash
 }
 

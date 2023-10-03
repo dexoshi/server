@@ -74,86 +74,89 @@ export const addToInfoQueue = async (item: InfoQueueItem) => {
 export const processQueues = async () => {
   const item = await db.query.queues.findFirst()
   if (item) {
-    // @ts-expect-error
-    const value = JSON.parse(item.value) as QueueValue
+    try {
+      // @ts-expect-error
+      const value = JSON.parse(item.value) as QueueValue
 
-    if (value.type === 'mint') {
-      console.log('Running Mint Queue For Item...')
-      const token = Math.round(Math.random() * 255)
-      const mintedCard = await db.query.mintedCards.findFirst({
-        where: (c, { and, eq }) => {
-          return and(eq(c.publicationId, value.publicationId), eq(c.profileId, value.profile.id))
-        },
-      })
-
-      if (mintedCard) {
-        console.error('Card has already been minted for this user and publication: ', {
-          publicationId: value.publicationId,
-          profileId: value.profile.id,
-          handle: value.profile.handle,
-          name: value.profile.name,
-        })
-        await dequeue(item.id)
-      } else {
-        // TODO: abstract this logic to check for mints and update mint cards table if we want to
-        // use this function in other places in the codebase
-        await mintCard({
-          to: value.profile.ownedBy as Address,
-          tokenId: BigInt(token),
-        })
-        await db.insert(mintedCards).values({
-          profileId: value.profile.id,
-          publicationId: value.publicationId,
-        })
-        const cardMetaData = await getCardMetadata(token.toString())
-
-        await createMintComment({
-          publicationId: value.publicationId,
-          cardImage: cardMetaData.image,
-          cardName: cardMetaData.name,
-          profileHandle: value.profile.handle,
+      if (value.type === 'mint') {
+        const token = value.tokenId || Math.round(Math.random() * 255)
+        const mintedCard = await db.query.mintedCards.findFirst({
+          where: (c, { and, eq }) => {
+            return and(eq(c.publicationId, value.publicationId), eq(c.profileId, value.profile.id))
+          },
         })
 
-        // Remove the item from the queue after we know it was successful
-        await dequeue(item.id)
+        if (mintedCard) {
+          console.error('Card has already been minted for this user and publication: ', {
+            publicationId: value.publicationId,
+            profileId: value.profile.id,
+            handle: value.profile.handle,
+            name: value.profile.name,
+          })
+          await dequeue(item.id)
+        } else {
+          // TODO: abstract this logic to check for mints and update mint cards table if we want to
+          // use this function in other places in the codebase
+          await mintCard({
+            to: value.profile.ownedBy as Address,
+            tokenId: BigInt(token),
+          })
+          await db.insert(mintedCards).values({
+            profileId: value.profile.id,
+            publicationId: value.publicationId,
+          })
+          const cardMetaData = await getCardMetadata(token.toString())
+
+          await createMintComment({
+            publicationId: value.publicationId,
+            cardImage: cardMetaData.image,
+            cardName: cardMetaData.name,
+            profileHandle: value.profile.handle,
+          })
+
+          // Remove the item from the queue after we know it was successful
+          await dequeue(item.id)
+        }
       }
-    }
 
-    if (value.type === 'merge') {
-      console.log('Running Merge Queue For Item...')
-      const tokenOne = BigInt(value.tokenOneId)
-      const tokenTwo = BigInt(value.tokenTwoId)
+      if (value.type === 'merge') {
+        console.log('Running Merge Queue For Item...')
+        const tokenOne = BigInt(value.tokenOneId)
+        const tokenTwo = BigInt(value.tokenTwoId)
 
-      const [err] = await tryFail(() =>
-        mergeCards({ to: value.profile.ownedBy as Address, tokenOne, tokenTwo })
-      )
+        const [err] = await tryFail(() =>
+          mergeCards({ to: value.profile.ownedBy as Address, tokenOne, tokenTwo })
+        )
 
-      if (err) {
+        if (err) {
+          await createInfoComment({
+            publicationId: value.publicationId,
+            content: err?.error.message,
+          })
+          await dequeue(item.id)
+        } else {
+          const token = getTokenIdFromMerge({ tokenOne, tokenTwo })
+
+          const cardMetaData = await getCardMetadata(token.toString())
+          await createMergeComment({
+            publicationId: value.publicationId,
+            cardImage: cardMetaData.image,
+            cardName: cardMetaData.name,
+          })
+          await dequeue(item.id)
+        }
+      }
+
+      if (value.type === 'info') {
+        console.log('Running Info Queue For Item...')
         await createInfoComment({
           publicationId: value.publicationId,
-          content: err?.error.message,
-        })
-        await dequeue(item.id)
-      } else {
-        const token = getTokenIdFromMerge({ tokenOne, tokenTwo })
-
-        const cardMetaData = await getCardMetadata(token.toString())
-        await createMergeComment({
-          publicationId: value.publicationId,
-          cardImage: cardMetaData.image,
-          cardName: cardMetaData.name,
+          content: value.content,
         })
         await dequeue(item.id)
       }
-    }
-
-    if (value.type === 'info') {
-      console.log('Running Info Queue For Item...')
-      await createInfoComment({
-        publicationId: value.publicationId,
-        content: value.content,
-      })
-      await dequeue(item.id)
+    } catch (error) {
+      console.error(error)
     }
   }
 

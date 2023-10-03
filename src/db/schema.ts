@@ -45,6 +45,7 @@ export type MintQueueItem = {
   type: 'mint'
   publicationId: string
   profile: ProfileFragment
+  tokenId?: string
 }
 
 export type MergeQueueItem = {
