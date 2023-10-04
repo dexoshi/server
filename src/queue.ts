@@ -79,7 +79,7 @@ export const processQueues = async () => {
       const value = JSON.parse(item.value) as QueueValue
 
       if (value.type === 'mint') {
-        const token = value.tokenId || Math.round(Math.random() * 255)
+        const token = value.tokenId || Math.round(Math.random() * 63)
         const mintedCard = await db.query.mintedCards.findFirst({
           where: (c, { and, eq }) => {
             return and(eq(c.publicationId, value.publicationId), eq(c.profileId, value.profile.id))
