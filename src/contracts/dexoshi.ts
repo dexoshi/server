@@ -37,7 +37,7 @@ export function getTokenIdFromMerge({
   tokenOne: bigint
   tokenTwo: bigint
 }) {
-  return (tokenOne * tokenTwo) % BigInt(256)
+  return (tokenOne * tokenTwo) % BigInt(64)
 }
 
 export async function mergeCards({
