@@ -1,5 +1,5 @@
 import { Alchemy, Network } from 'alchemy-sdk'
-import { DEXOSHI_CONTRACT_ADDRESS } from './constants'
+import { DEXOSHI_CONTRACT_ADDRESS } from '../constants'
 
 const settings = {
   apiKey: process.env.ALCHEMY_API_KEY,

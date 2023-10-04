@@ -1,6 +1,5 @@
 import { eq } from 'drizzle-orm'
 import { Address } from 'viem'
-import { createInfoComment, createMergeComment, createMintComment } from './comments'
 import { COLLECTION_SIZE } from './constants'
 import { getTokenIdFromMerge, mergeCards, mintCard } from './contracts/dexoshi'
 import { db } from './db/db'
@@ -13,7 +12,8 @@ import {
   mintedCards,
   queues,
 } from './db/schema'
-import { getCardMetadata } from './ipfs'
+import { createInfoComment, createMergeComment, createMintComment } from './lens/comments'
+import { getCardMetadata } from './services/ipfs'
 import { tryFail } from './utils'
 
 type QueueName = NonNullable<SelectQueue['name']>

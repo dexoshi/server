@@ -1,10 +1,10 @@
 import { PublicationMainFocus, PublicationMetadataV2Input } from '@lens-protocol/client'
 import { v4 as uuidv4 } from 'uuid'
-import { db } from './db/db'
-import { publications } from './db/schema'
-import { uploadIpfs } from './ipfs'
+import { db } from '../db/db'
+import { publications } from '../db/schema'
+import { uploadIpfs } from '../services/ipfs'
+import { login } from './authentication'
 import { lensClient } from './lens-client'
-import { login } from './login'
 
 const prefix = 'create comment'
 

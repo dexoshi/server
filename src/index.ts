@@ -1,12 +1,12 @@
 import { Elysia, t } from 'elysia'
-import { getOwnedCards } from './alchemyt'
-import { getAllWalletsWhoCollected } from './collects'
 import { startCronJobs } from './cron-jobs/cron-jobs'
 import { createCardInfoSummary } from './cron-jobs/notifications-cron'
 import * as env from './env'
-import { notifications } from './notifications'
-import { publications } from './publications'
+import { getAllWalletsWhoCollected } from './lens/collects'
+import { notifications } from './lens/notifications'
+import { publications } from './lens/publications'
 import { processQueues } from './queue'
+import { getOwnedCards } from './services/alchemy'
 
 env.init()
 

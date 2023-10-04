@@ -1,8 +1,8 @@
 import cron from '@elysiajs/cron'
 import Elysia from 'elysia'
-import { getAllWalletsWhoCollected } from '../collects'
 import { db } from '../db/db'
-import { getPublication } from '../publications'
+import { getAllWalletsWhoCollected } from '../lens/collects'
+import { getPublication } from '../lens/publications'
 import { addToMintQueue } from '../queue'
 import { getHashTags } from '../utils'
 

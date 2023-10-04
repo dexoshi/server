@@ -2,7 +2,7 @@ import cron from '@elysiajs/cron'
 import Elysia from 'elysia'
 import { db } from '../db/db'
 import { cache } from '../db/schema'
-import { getWhoMirroredPublication } from '../mirrors'
+import { getWhoMirroredPublication } from '../lens/mirrors'
 import { addToMintQueue } from '../queue'
 
 const MINT_PUBLICATION_IDS = ['0x91ac-0x01-DA-6709cc0d']

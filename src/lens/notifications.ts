@@ -1,7 +1,7 @@
 import { CustomFiltersTypes, NotificationTypes } from '@lens-protocol/client'
 import Elysia from 'elysia'
+import { login } from './authentication'
 import { lensClient } from './lens-client'
-import { login } from './login'
 
 export async function getNotifications() {
   await login()
