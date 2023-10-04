@@ -3,7 +3,7 @@ import { dexoshiAbi } from './dexoshi-abi'
 
 import { privateKeyToAccount } from 'viem/accounts'
 import { polygonMumbai } from 'viem/chains'
-import { DEXOSHI_CONTRACT_ADDRESS } from '../constants'
+import { COLLECTION_SIZE, DEXOSHI_CONTRACT_ADDRESS } from '../constants'
 import { getErrorMessage } from '../utils'
 
 const walletClient = createWalletClient({
@@ -37,7 +37,7 @@ export function getTokenIdFromMerge({
   tokenOne: bigint
   tokenTwo: bigint
 }) {
-  return (tokenOne * tokenTwo) % BigInt(64)
+  return (tokenOne * tokenTwo) % BigInt(COLLECTION_SIZE)
 }
 
 export async function mergeCards({

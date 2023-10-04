@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { Address } from 'viem'
 import { createInfoComment, createMergeComment, createMintComment } from './comments'
+import { COLLECTION_SIZE } from './constants'
 import { getTokenIdFromMerge, mergeCards, mintCard } from './contracts/dexoshi'
 import { db } from './db/db'
 import {
@@ -79,7 +80,7 @@ export const processQueues = async () => {
       const value = JSON.parse(item.value) as QueueValue
 
       if (value.type === 'mint') {
-        const token = value.tokenId || Math.round(Math.random() * 63)
+        const token = value.tokenId || Math.round(Math.random() * (COLLECTION_SIZE - 1))
         const mintedCard = await db.query.mintedCards.findFirst({
           where: (c, { and, eq }) => {
             return and(eq(c.publicationId, value.publicationId), eq(c.profileId, value.profile.id))
