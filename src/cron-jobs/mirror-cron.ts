@@ -5,7 +5,11 @@ import { cache } from '../db/schema'
 import { getWhoMirroredPublication } from '../lens/mirrors'
 import { addToMintQueue } from '../queue'
 
-const MINT_PUBLICATION_IDS = ['0x91ac-0x01-DA-6709cc0d', '0x91ac-0x02-DA-4c1ceeab']
+const MINT_PUBLICATION_IDS = [
+  '0x91ac-0x01-DA-6709cc0d',
+  '0x91ac-0x02-DA-4c1ceeab',
+  '0x91ac-0x02-DA-399ea272',
+]
 
 export function init(app: Elysia) {
   app.use(
