@@ -6,7 +6,7 @@ import { getPublication } from '../lens/publications'
 import { addToMintQueue } from '../queue'
 import { getHashTags } from '../utils'
 
-const COLLECT_PUBLICATION_IDS = ['0x91ac-0x01']
+const COLLECT_PUBLICATION_IDS = [] as string[]
 
 export function init(app: Elysia) {
   app.use(
