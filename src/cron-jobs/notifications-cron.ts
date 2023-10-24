@@ -107,10 +107,15 @@ export const init = (app: Elysia) => {
 
                     return
                   }
-                  await db.insert(airdrops).values({
-                    profileId: n.mentionPublication.profile.id,
-                    publicationId: n.mentionPublication.id,
-                  })
+
+                  await db
+                    .insert(airdrops)
+                    .values({
+                      profileId: n.mentionPublication.profile.id,
+                      publicationId: n.mentionPublication.id,
+                    })
+                    .onConflictDoNothing()
+
                   await addToMintQueue({
                     type: 'mint',
                     publicationId: n.mentionPublication.id,

@@ -1,5 +1,5 @@
 import { ProfileFragment } from '@lens-protocol/client'
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 import { v4 as uuid } from 'uuid'
 
 export const cache = sqliteTable(
@@ -76,14 +76,20 @@ export const queues = sqliteTable('queues', {
 export type InsertQueue = typeof queues.$inferInsert
 export type SelectQueue = typeof queues.$inferSelect
 
-export const airdrops = sqliteTable('airdrops', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => uuid()),
-  createdAt: integer('date', { mode: 'timestamp_ms' }).$default(() => new Date()),
-  profileId: text('profileId').notNull(),
-  publicationId: text('publicationId').notNull(),
-})
+export const airdrops = sqliteTable(
+  'airdrops',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => uuid()),
+    createdAt: integer('date', { mode: 'timestamp_ms' }).$default(() => new Date()),
+    profileId: text('profileId').notNull(),
+    publicationId: text('publicationId').notNull(),
+  },
+  (t) => ({
+    uniqueIdx: unique('airdrops_unique').on(t.profileId, t.publicationId),
+  })
+)
 
 export const collects = sqliteTable('collects', {
   id: text('id')
