@@ -3,19 +3,40 @@ import { OwnedNft } from 'alchemy-sdk'
 import Elysia from 'elysia'
 import { sumBy } from 'lodash'
 import { db } from '../db/db'
-import { publications } from '../db/schema'
+import { airdrops, publications } from '../db/schema'
 import { getComments } from '../lens/comments'
 import { getNotifications } from '../lens/notifications'
 import { addToInfoQueue, addToMergeQueue, addToMintQueue } from '../queue'
 import { getOwnedCards } from '../services/alchemy'
 import { getHashTags } from '../utils'
 
-export function createCardInfoSummary(nfts: OwnedNft[]) {
-  return `You own ${sumBy(nfts, (n) => n.balance)} cards.
+const SQUARES = ['🟩', '⬛']
+export function createCardInfoSummary(nfts: OwnedNft[], type: 'info' | 'info-details' = 'info') {
+  const cards = nfts.filter((n) => parseInt(n.tokenId) < 64)
+  // Create an 8x8 array that represents the card grid
+  // There should be a green square for every NFT owned and black for every NFT not owned
+  const grid = Array.from({ length: 8 }, () => Array.from({ length: 8 }, () => SQUARES[1]))
+
+  // For each NFT owned, set the grid value to green
+  cards.forEach((nft) => {
+    const tokenIdNum = parseInt(nft.tokenId)
+    // The placement of the NFT should be based on where the number falls in the 64 grid
+    const y = Math.floor(tokenIdNum / 8)
+    const x = Math.floor(tokenIdNum % 8)
+
+    grid[y][x] = SQUARES[0]
+  })
+
+  if (type === 'info-details') {
+    return `You own ${sumBy(cards, (n) => n.balance)} cards.
+${grid.map((r) => r.join(' ')).join('\n')}
 
 Cards:
-${nfts.map((n) => `${n.tokenId} (${n.balance}x)`).join('\n')}
+${cards.map((n) => `${n.tokenId} (${n.balance}x)`).join('\n')}
 `
+  }
+
+  return grid.map((r) => r.join(' ')).join('\n')
 }
 
 export const init = (app: Elysia) => {
@@ -68,6 +89,28 @@ export const init = (app: Elysia) => {
                     return
                   }
 
+                  const airdropCounts = await db.query.airdrops.findMany({
+                    where: (c, { eq, and, gte }) =>
+                      and(
+                        eq(c.profileId, n.mentionPublication.profile.id),
+                        gte(c.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000))
+                      ),
+                  })
+
+                  if (airdropCounts.length >= 1) {
+                    await addToInfoQueue({
+                      type: 'info',
+                      content: `You have claimed ${airdropCounts.length} in the last 24 hours. You can only claim 5 airdrops in 24 hours, unless you hold special NFTs.`,
+                      profile: n.mentionPublication.profile,
+                      publicationId: n.mentionPublication.id,
+                    })
+
+                    return
+                  }
+                  await db.insert(airdrops).values({
+                    profileId: n.mentionPublication.profile.id,
+                    publicationId: n.mentionPublication.id,
+                  })
                   await addToMintQueue({
                     type: 'mint',
                     publicationId: n.mentionPublication.id,
@@ -114,6 +157,31 @@ export const init = (app: Elysia) => {
                   const nfts = await getOwnedCards({ owner: n.mentionPublication.profile.ownedBy })
 
                   const content = createCardInfoSummary(nfts.ownedNfts)
+
+                  await addToInfoQueue({
+                    type: 'info',
+                    content,
+                    profile: n.mentionPublication.profile,
+                    publicationId: n.mentionPublication.id,
+                  })
+                } else if (command === 'info-details') {
+                  const checkComments = await getComments(n.mentionPublication.id)
+                  const hasCommented = checkComments.items.some(
+                    (c) => c.profile.id === process.env.PROFILE_ID
+                  )
+
+                  if (hasCommented) {
+                    await db.insert(publications).values({
+                      publicationId: n.mentionPublication.id,
+                      commentedAt: new Date(),
+                    })
+                    return
+                  }
+
+                  // Get tokens Ids that the user owns
+                  const nfts = await getOwnedCards({ owner: n.mentionPublication.profile.ownedBy })
+
+                  const content = createCardInfoSummary(nfts.ownedNfts, 'info-details')
 
                   await addToInfoQueue({
                     type: 'info',

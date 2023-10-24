@@ -75,3 +75,12 @@ export const queues = sqliteTable('queues', {
 
 export type InsertQueue = typeof queues.$inferInsert
 export type SelectQueue = typeof queues.$inferSelect
+
+export const airdrops = sqliteTable('airdrops', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  createdAt: integer('date', { mode: 'timestamp_ms' }).$default(() => new Date()),
+  profileId: text('profileId').notNull(),
+  publicationId: text('publicationId').notNull(),
+})

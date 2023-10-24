@@ -3,17 +3,17 @@ import { dexoshiAbi } from './dexoshi-abi'
 
 import { privateKeyToAccount } from 'viem/accounts'
 import { polygonMumbai } from 'viem/chains'
-import { COLLECTION_SIZE, DEXOSHI_CONTRACT_ADDRESS } from '../constants'
+import { COLLECTION_SIZE } from '../constants'
 import { getErrorMessage } from '../utils'
 
 const walletClient = createWalletClient({
   chain: polygonMumbai,
   account: privateKeyToAccount(`0x${process.env.PRIVATE_KEY}`),
-  transport: http('https://rpc-mumbai.maticvigil.com'),
+  transport: http(process.env.RPC_URL),
 })
 
 const dexoshiContract = getContract({
-  address: DEXOSHI_CONTRACT_ADDRESS,
+  address: process.env.DEXOSHI_CONTRACT_ADDRESS,
   abi: dexoshiAbi,
   walletClient,
 })
