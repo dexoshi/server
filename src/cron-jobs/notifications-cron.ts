@@ -97,7 +97,7 @@ export const init = (app: Elysia) => {
                       ),
                   })
 
-                  if (airdropCounts.length >= 1) {
+                  if (airdropCounts.length >= 5) {
                     await addToInfoQueue({
                       type: 'info',
                       content: `You have claimed ${airdropCounts.length} in the last 24 hours. You can only claim 5 airdrops in 24 hours, unless you hold special NFTs.`,
