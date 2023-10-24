@@ -1,9 +1,9 @@
 import { Elysia, t } from 'elysia'
-import { startCronJobs } from './cron-jobs/cron-jobs'
 import { createCardInfoSummary } from './cron-jobs/notifications-cron'
 import * as env from './env'
 import { getAllWalletsWhoCollected } from './lens/collects'
 import { notifications } from './lens/notifications'
+import { getProfile } from './lens/profile'
 import { publications } from './lens/publications'
 import { processQueues } from './queue'
 import { getOwnedCards } from './services/alchemy'
@@ -26,7 +26,7 @@ const app = new Elysia()
     }
   )
 
-  .use(startCronJobs())
+  // .use(startCronJobs())
   .group('/notifications', (app) => app.use(notifications))
   .group('/publications', (app) => app.use(publications))
   .get(
@@ -40,6 +40,12 @@ const app = new Elysia()
       }),
     }
   )
+  .get('/me', async () => {
+    const me = await getProfile()
+    console.log('🚀 ~ file: index.ts:45 ~ .get ~ me:', me)
+
+    return me
+  })
   .listen(process.env.PORT || 3000)
 
 processQueues()
