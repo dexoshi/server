@@ -5,8 +5,6 @@ import { cache } from '../db/schema'
 import { getWhoMirroredPublication } from '../lens/mirrors'
 import { addToMintQueue } from '../queue'
 
-const MINT_PUBLICATION_IDS = [] as string[]
-
 export function init(app: Elysia) {
   app.use(
     cron({
@@ -15,7 +13,8 @@ export function init(app: Elysia) {
       run: async () => {
         console.log('🕐 Checking Mirrors...')
 
-        for await (const publicationId of MINT_PUBLICATION_IDS) {
+        const mirrors = await db.query.mirrors.findMany()
+        for await (const { publicationId } of mirrors) {
           const mirrors = await getWhoMirroredPublication({
             publicationId,
           })

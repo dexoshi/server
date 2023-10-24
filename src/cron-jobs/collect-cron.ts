@@ -6,8 +6,6 @@ import { getPublication } from '../lens/publications'
 import { addToMintQueue } from '../queue'
 import { getHashTags } from '../utils'
 
-const COLLECT_PUBLICATION_IDS = [] as string[]
-
 export function init(app: Elysia) {
   app.use(
     cron({
@@ -15,7 +13,8 @@ export function init(app: Elysia) {
       pattern: '*/10 * * * * *',
       run: async () => {
         console.log('🕐 Checking Collects...')
-        for await (const publicationId of COLLECT_PUBLICATION_IDS) {
+        const collects = await db.query.collects.findMany()
+        for await (const { publicationId } of collects) {
           const publication = await getPublication(publicationId)
           const mirrors = await getAllWalletsWhoCollected({
             publicationId,

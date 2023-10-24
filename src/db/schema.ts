@@ -84,3 +84,19 @@ export const airdrops = sqliteTable('airdrops', {
   profileId: text('profileId').notNull(),
   publicationId: text('publicationId').notNull(),
 })
+
+export const collects = sqliteTable('collects', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  createdAt: integer('date', { mode: 'timestamp_ms' }).$default(() => new Date()),
+  publicationId: text('publicationId').notNull(),
+})
+
+export const mirrors = sqliteTable('mirrors', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  createdAt: integer('date', { mode: 'timestamp_ms' }).$default(() => new Date()),
+  publicationId: text('publicationId').notNull(),
+})
