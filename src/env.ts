@@ -18,6 +18,7 @@ const envVariables = z.object({
   DEXOSHI_CONTRACT_ADDRESS: EthHex,
   NETWORK: z.nativeEnum(Network),
   RPC_URL: z.string().url(),
+  NODE_ENV: z.enum(['development', 'production']),
 })
 
 export function init() {

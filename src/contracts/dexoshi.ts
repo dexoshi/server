@@ -2,12 +2,13 @@ import { Address, createWalletClient, getContract, http } from 'viem'
 import { dexoshiAbi } from './dexoshi-abi'
 
 import { privateKeyToAccount } from 'viem/accounts'
-import { polygonMumbai } from 'viem/chains'
+import { polygon, polygonMumbai } from 'viem/chains'
 import { COLLECTION_SIZE } from '../constants'
 import { getErrorMessage } from '../utils'
 
+const chain = process.env.NODE_ENV === 'production' ? polygon : polygonMumbai
 const walletClient = createWalletClient({
-  chain: polygonMumbai,
+  chain,
   account: privateKeyToAccount(`0x${process.env.PRIVATE_KEY}`),
   transport: http(process.env.RPC_URL),
 })
