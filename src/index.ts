@@ -1,4 +1,5 @@
 import { Elysia, t } from 'elysia'
+import { startCronJobs } from './cron-jobs/cron-jobs'
 import { createCardInfoSummary } from './cron-jobs/notifications-cron'
 import * as env from './env'
 import { getAllWalletsWhoCollected } from './lens/collects'
@@ -26,7 +27,7 @@ const app = new Elysia()
     }
   )
 
-  // .use(startCronJobs())
+  .use(startCronJobs())
   .group('/notifications', (app) => app.use(notifications))
   .group('/publications', (app) => app.use(publications))
   .get(
