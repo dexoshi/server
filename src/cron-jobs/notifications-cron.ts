@@ -45,7 +45,6 @@ export const init = (app: Elysia) => {
       name: 'check-notifications',
       pattern: '*/10 * * * * *',
       run: async () => {
-        console.log('🕐 Checking Notifications...')
         const notifications = await getNotifications()
         const recordedPublications = await db.query.publications.findMany({
           where: (p, { inArray }) =>

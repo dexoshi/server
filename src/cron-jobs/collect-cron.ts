@@ -12,7 +12,6 @@ export function init(app: Elysia) {
       name: 'check-collects',
       pattern: '*/10 * * * * *',
       run: async () => {
-        console.log('🕐 Checking Collects...')
         const collects = await db.query.collects.findMany()
         for await (const { publicationId } of collects) {
           const publication = await getPublication(publicationId)

@@ -11,8 +11,6 @@ export function init(app: Elysia) {
       name: 'check-mirrors',
       pattern: '*/10 * * * * *',
       run: async () => {
-        console.log('🕐 Checking Mirrors...')
-
         const mirrors = await db.query.mirrors.findMany()
         for await (const { publicationId } of mirrors) {
           const mirrors = await getWhoMirroredPublication({
