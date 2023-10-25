@@ -11,7 +11,7 @@ import { getOwnedCards } from '../services/alchemy'
 import { getHashTags } from '../utils'
 
 const SQUARES = ['🟩', '⬛']
-export function createCardInfoSummary(nfts: OwnedNft[], type: 'info' | 'info-details' = 'info') {
+export function createCardInfoSummary(nfts: OwnedNft[], type: 'info' | 'details' = 'info') {
   const cards = nfts.filter((n) => parseInt(n.tokenId) < 64)
   // Create an 8x8 array that represents the card grid
   // There should be a green square for every NFT owned and black for every NFT not owned
@@ -27,7 +27,7 @@ export function createCardInfoSummary(nfts: OwnedNft[], type: 'info' | 'info-det
     grid[y][x] = SQUARES[0]
   })
 
-  if (type === 'info-details') {
+  if (type === 'details') {
     return `You own ${sumBy(cards, (n) => n.balance)} cards.
 ${grid.map((r) => r.join(' ')).join('\n')}
 
@@ -168,7 +168,7 @@ export const init = (app: Elysia) => {
                     profile: n.mentionPublication.profile,
                     publicationId: n.mentionPublication.id,
                   })
-                } else if (command === 'info-details') {
+                } else if (command === 'details') {
                   const checkComments = await getComments(n.mentionPublication.id)
                   const hasCommented = checkComments.items.some(
                     (c) => c.profile.id === process.env.PROFILE_ID
@@ -185,7 +185,7 @@ export const init = (app: Elysia) => {
                   // Get tokens Ids that the user owns
                   const nfts = await getOwnedCards({ owner: n.mentionPublication.profile.ownedBy })
 
-                  const content = createCardInfoSummary(nfts.ownedNfts, 'info-details')
+                  const content = createCardInfoSummary(nfts.ownedNfts, 'details')
 
                   await addToInfoQueue({
                     type: 'info',
@@ -196,7 +196,7 @@ export const init = (app: Elysia) => {
                 } else if (command) {
                   await addToInfoQueue({
                     type: 'info',
-                    content: `${command} is not a valid command.\n\nPlease choose one of the following: #airdrop, #merge, #info.`,
+                    content: `${command} is not a valid command.\n\nPlease choose one of the following: #airdrop, #merge, #info, #details.`,
                     profile: n.mentionPublication.profile,
                     publicationId: n.mentionPublication.id,
                   })
